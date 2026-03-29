@@ -2,11 +2,10 @@ using UnityEngine;
 
 public class ScrollObject : MonoBehaviour
 {
-    public float speed = 5f;
     public bool isStop = false;
 
     private GameManager gameManager;
-
+    private float speed;
     private void Start()
     {
         gameManager = GameObject.FindWithTag("GameController").GetComponent<GameManager>();
@@ -16,6 +15,7 @@ public class ScrollObject : MonoBehaviour
     void Update()
     {
 
+        speed = gameManager.speed;
         isStop = gameManager.isGameover;
 
         if (isStop) return;

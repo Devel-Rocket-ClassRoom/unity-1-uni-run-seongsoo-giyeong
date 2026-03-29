@@ -1,16 +1,19 @@
 using System.Net.NetworkInformation;
 using TMPro;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Slider = UnityEngine.UI.Slider;
 
 
 public class GameManager : MonoBehaviour
 {
     public TextMeshProUGUI scoreText;
-    public RectTransform Hp;
-
+    public Slider Hp;
+    
     public PlayerController player;
     public MapSpawner spawner;
 
@@ -20,6 +23,7 @@ public class GameManager : MonoBehaviour
 
     private int score = 0;
     public float health = 100f;
+    public float speed = 7f;
 
     private float hpDecreaseTime;
 
@@ -33,6 +37,8 @@ public class GameManager : MonoBehaviour
         if (health <= 0 || player.isDead)
         {
             health = 0;
+            Hp.value = health / 100f;
+
             isGameover = true;
             player.Die();
             spawner.isGameOver = true;
@@ -41,10 +47,10 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Hp.localScale = new Vector3(health / 100, 1f, 1f);
+        Hp.value = health / 100f;
 
         hpDecreaseTime += Time.deltaTime;
-        if(hpDecreaseTime > 1)
+        if(hpDecreaseTime > 1 && !player.isImmune)
         {
             hpDecreaseTime = 0;
             health -= 3;
@@ -70,6 +76,5 @@ public class GameManager : MonoBehaviour
             health = 0;
         }
 
-        Hp.localScale = new Vector3(health/100, 1f, 1f);
     }
 }

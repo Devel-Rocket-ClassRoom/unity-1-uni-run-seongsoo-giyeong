@@ -1,39 +1,52 @@
+using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+
 
 public class PlayerController : MonoBehaviour
 {
 
     public float jumpForce = 200f;
+    public float Health = 100f;
     private int jumpCount = 0;
 
     private bool isGrounded = false;
     private bool isSlide = false;
-    
+
+    // 종료 로직과 시간을 같이 담을 튜플 ... 구조체로 받을 방법 없나? 다른 요소가 필요할 수도 있으니
+    private (Action<GameObject>, float) ActiveItem;
+    // 를 담을 리스트. 갱신과 종료가 각자 돼야하니
+    private List<(Action<GameObject>, float)> _activeItems = new List<(Action<GameObject>, float) > ();
+
+
     public bool isDead = false;
     public bool isImmune = false;
 
     private Rigidbody2D rb;
     private Animator animator;
-    private BoxCollider2D col;
+    private CapsuleCollider2D col;
 
+    private Vector2 originOffset;
+    private Vector2 originSize;
     public void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        col = GetComponent<BoxCollider2D>();
+        col = GetComponent<CapsuleCollider2D>();
 
     }
 
     void Start()
     {
-
+        originOffset = col.offset;
+        originSize = col.size;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        ItemCheck();
         Jump();
         Slide();
 
@@ -61,8 +74,8 @@ public class PlayerController : MonoBehaviour
                 isSlide = false;
                 isGrounded = false;
 
-                col.offset = new Vector2(col.offset.x, col.offset.y + 0.25f);
-                col.size = new Vector2(col.size.x, col.size.y * 2f);
+                col.offset = new Vector2(originOffset.x, originOffset.y);
+                col.size = new Vector2(originSize.x, originSize.y);
             }
 
         }
@@ -76,12 +89,13 @@ public class PlayerController : MonoBehaviour
     void Slide()
     {
 
+        
 
         if (Input.GetKey(KeyCode.S) && !isSlide && isGrounded)
         {
             isSlide = true;
 
-            col.offset = new Vector2(col.offset.x, col.offset.y - 0.15f);
+            col.offset = new Vector2(col.offset.x, col.offset.y - col.size.y / 4);
             col.size = new Vector2(col.size.x, col.size.y * 0.5f);
 
 
@@ -91,9 +105,9 @@ public class PlayerController : MonoBehaviour
         {
             isSlide = false;
 
-            col.offset = new Vector2(col.offset.x, col.offset.y + 0.15f);
+            col.offset = new Vector2(originOffset.x, originOffset.y);
 
-            col.size = new Vector2(col.size.x, col.size.y * 2f);
+            col.size = new Vector2(originSize.x, originSize.y);
         }
 
 
@@ -107,6 +121,36 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.bodyType = RigidbodyType2D.Kinematic;
 
+    }
+
+    public void Heal(float energy)
+    {
+        Health += energy;
+    }
+
+    public void AddItem(Action<GameObject> onApply, Action<GameObject> onRemove, float duration)
+    {
+        // 효과 발동
+        onApply?.Invoke(gameObject);
+
+        _activeItems.Add((onRemove,  duration));
+    }
+
+    public void ItemCheck()
+    {
+        for (int i = _activeItems.Count - 1; i >= 0; i--)
+        {
+            var item = _activeItems[i];
+            item.Item2 -= Time.deltaTime;
+            _activeItems[i] = item;
+
+            // 시간이 다 되면 보관해둔 삭제 로직 실행
+            if (_activeItems[i].Item2 <= 0)
+            {
+                _activeItems[i].Item1?.Invoke(gameObject);
+                _activeItems.RemoveAt(i);
+            }
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
