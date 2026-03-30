@@ -28,7 +28,7 @@ public class Obstacle : MonoBehaviour
                 GetComponent<SpriteRenderer>().color = myColor;
                 animator.SetTrigger("Destroy");
 
-                Destroy(gameObject);
+                //Destroy(gameObject);
 
                 return;
             }
