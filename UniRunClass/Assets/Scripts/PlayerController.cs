@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     // 종료 로직과 시간을 같이 담을 튜플 ... 구조체로 받을 방법 없나? 다른 요소가 필요할 수도 있으니
     private (Action<GameObject>, float) ActiveItem;
     // 를 담을 리스트. 갱신과 종료가 각자 돼야하니
-    private List<(Action<GameObject>, float)> _activeItems = new List<(Action<GameObject>, float) > ();
+    private List<(Action<GameObject>, float)> _activeItems = new List<(Action<GameObject>, float)>();
 
 
     public bool isDead = false;
@@ -89,7 +89,7 @@ public class PlayerController : MonoBehaviour
     void Slide()
     {
 
-        
+
 
         if (Input.GetKey(KeyCode.S) && !isSlide && isGrounded)
         {
@@ -133,7 +133,8 @@ public class PlayerController : MonoBehaviour
         // 효과 발동
         onApply?.Invoke(gameObject);
 
-        _activeItems.Add((onRemove,  duration));
+        // bool 값까지 받아서 획득 시 지속시간 초기화를 해야하나..
+        _activeItems.Add((onRemove, duration));
     }
 
     public void ItemCheck()
@@ -144,6 +145,7 @@ public class PlayerController : MonoBehaviour
             item.Item2 -= Time.deltaTime;
             _activeItems[i] = item;
 
+           
             // 시간이 다 되면 보관해둔 삭제 로직 실행
             if (_activeItems[i].Item2 <= 0)
             {
@@ -155,7 +157,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.collider.CompareTag("Platform"))
+        if (collision.collider.CompareTag("Platform") && collision.contacts[0].normal.y > 0.7f)
         {
             isGrounded = true;
             jumpCount = 0;
@@ -164,7 +166,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if(collision.collider.CompareTag("Platform"))
+        if (collision.collider.CompareTag("Platform"))
         {
             isGrounded = false;
         }
@@ -172,7 +174,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Dead"))
+        if (collision.CompareTag("Dead"))
         {
             Die();
         }

@@ -19,6 +19,7 @@ public class Obstacle : MonoBehaviour
     {
         if (collision.CompareTag("Player")) 
         {
+            // 부스트 상태에서 충돌 시 파괴
             if(collision.GetComponent<PlayerController>().isImmune)
             {
                 Color myColor;
@@ -27,7 +28,7 @@ public class Obstacle : MonoBehaviour
                 GetComponent<SpriteRenderer>().color = myColor;
                 animator.SetTrigger("Destroy");
 
-                //Destroy(gameObject);
+                Destroy(gameObject);
 
                 return;
             }
