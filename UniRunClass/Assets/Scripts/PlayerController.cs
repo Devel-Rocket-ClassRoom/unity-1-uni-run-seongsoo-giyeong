@@ -130,6 +130,7 @@ public class PlayerController : MonoBehaviour
 
     public void AddItem(Action<GameObject> onApply, Action<GameObject> onRemove, float duration)
     {
+
         // 효과 발동
         onApply?.Invoke(gameObject);
 

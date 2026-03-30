@@ -14,6 +14,7 @@ public class BoostItem : Item
     public override void ApplyEffect(GameObject player)
     {
         // 자식 오브젝트 중에 부스트를 찾아서 활성화
+        // 플레이어 컨트롤러에 메소드를 만들던가 할당을 하던가 해서 불러오기
         player.GetComponent<PlayerController>().isImmune = true;
         foreach (Transform effect in player.transform)
         {
@@ -25,6 +26,7 @@ public class BoostItem : Item
         }
 
 
+        
         originSpawnTime = manager.spawner.maxSpawnTime;
         originSpeed = manager.speed;
 

@@ -4,7 +4,8 @@ public abstract class Item : MonoBehaviour
 {
     public string itemName;
     public GameManager manager;
-    public float duration;
+    
+    protected float duration;
     public bool isActive;
 
     public virtual void Start()
